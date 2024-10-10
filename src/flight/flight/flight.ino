@@ -40,6 +40,7 @@ unsigned long stateEntryTime = 0;
 bool apogeeReached, mainChuteDeployed, isLowPowerModeEntered = false;
 EKF ekf;  // Kalman filter object
 #define LED_PIN 13
+bool LORA = false;
 
 // SD CARD(S) CS
 const int chipSelect = BUILTIN_SDCARD;
@@ -153,8 +154,10 @@ void setup() {
     rf95.setSpreadingFactor(10);
     rf95.setSignalBandwidth(62.5E3);
     rf95.setCodingRate4(8);
+    LORA = true;
   } else {
     Serial.println("LoRa radio init failed");
+    LORA = false;
   }
 
   digitalWrite(ledgrn, LOW);
