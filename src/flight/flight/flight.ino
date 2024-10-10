@@ -138,7 +138,6 @@ void setup() {
       delay(300);
     }
   }
-  axisRemapping();
   Serial.println("BNO055 initialized!");
 
   digitalWrite(ledblu, LOW);

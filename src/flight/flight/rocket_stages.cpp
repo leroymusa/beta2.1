@@ -38,8 +38,6 @@ pyrS1droguechute = 20,pyrS1mainchute = 21,pyrS12sep = 22,pyroIgniteS2 = 23,pyrS2
 const unsigned long boosterBurpTime = 1000;
 bool boosterBurpDetected, boosterBurnoutCheck = false;
 #define BNO055_POWER_MODE_LOWPOWER 0x01
-#define BNO055_AXIS_MAP_CONFIG_ADDR 0x41
-#define BNO055_AXIS_MAP_SIGN_ADDR   0x42
 
 // --- DETECT LAUNCH --- //
 bool detectLaunch () {
@@ -110,33 +108,6 @@ bool detectBurnout() {
         }
     }
     return false;
-}
-
-// -- AXIS REMAPPING -- //
-
-void writeRegister(uint8_t reg, uint8_t value) {
-    Wire.beginTransmission(0x28);
-    Wire.write((uint8_t)reg);
-    Wire.write((uint8_t)value);
-    Wire.endTransmission();
-}
-
-void axisRemapping() {
-    // Set to CONFIG mode to update axis remap
-    bno.setMode(OPERATION_MODE_CONFIG);
-    delay(25);
-
-    // Use the default remap configuration (no axis remapping)
-    writeRegister(BNO055_AXIS_MAP_CONFIG_ADDR, 0x24);  // Default configuration
-    delay(10);
-
-    // Invert the X, Y, and Z axes to account for the 180-degree rotation about the X-axis
-    writeRegister(BNO055_AXIS_MAP_SIGN_ADDR, 0x03);  // Invert X, Y, and Z axes
-    delay(10);
-
-    // Set back to the desired operation mode, e.g., NDOF mode
-    bno.setMode(OPERATION_MODE_NDOF);
-    delay(20);
 }
 
 void sdwrite() {
