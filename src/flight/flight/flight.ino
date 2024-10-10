@@ -32,13 +32,14 @@
   // Initialize Pins //
   //-----------------//
 
-const int ledblu = 7, ledgrn = 4, ledred = 0, teensyled = 13;
+const int ledblu = 7, ledgrn = 4, ledred = 0;
 ApogeeDetector detector;                     // Apogee detector object
 double altitude_backing_array[WINDOW_SIZE];  // Array to store altitude data for the rolling window
 RocketState currentState = PRE_LAUNCH;
 unsigned long stateEntryTime = 0;
 bool apogeeReached, mainChuteDeployed, isLowPowerModeEntered = false;
 EKF ekf;  // Kalman filter object
+#define LED_PIN 13
 
 // SD CARD(S) CS
 const int chipSelect = BUILTIN_SDCARD;
@@ -83,7 +84,7 @@ void setup() {
   pinMode(ledblu, OUTPUT);
   pinMode(ledgrn, OUTPUT);
   pinMode(ledred, OUTPUT);
-  pinMode(teensyled, OUTPUT);
+  pinMode(LED_PIN, OUTPUT);
   pinMode(pyrS1droguechute, OUTPUT);
   pinMode(pyrS1mainchute, OUTPUT);
   pinMode(pyrS12sep, OUTPUT);
@@ -146,6 +147,7 @@ void setup() {
   // Initialize LoRa Radio
   if (rf95.init()) {
     Serial.println("LoRa radio initialized!");
+    blinkMorseName();
     rf95.setFrequency(RF95_FREQ);
     rf95.setTxPower(23, false);
     rf95.setSpreadingFactor(10);
@@ -336,4 +338,32 @@ void changeState(RocketState newState) {
   stateEntryTime = millis();
   Serial.print("State changed to ");
   Serial.println(stateNames[newState]);
+}
+
+void blinkMorse(char *morse) {
+  for (int i = 0; morse[i] != '\0'; i++) {
+    if (morse[i] == '.') {
+      digitalWrite(LED_PIN, HIGH);
+      delay(250);  // Dot duration
+    } else if (morse[i] == '-') {
+      digitalWrite(LED_PIN, HIGH);
+      delay(750);  // Dash duration
+    }
+    digitalWrite(LED_PIN, LOW);
+    delay(250);  // Pause between parts of the letter
+  }
+  delay(1000);  // Pause between letters
+}
+
+void blinkMorseName() {
+  blinkMorse(".-..");  // L
+  blinkMorse(".");     // E
+  blinkMorse(".-.");   // R
+  blinkMorse("---");   // O
+  blinkMorse("-.--");  // Y
+  delay(2000);
+  blinkMorse("--");    // M
+  blinkMorse("..-");   // U
+  blinkMorse("...");   // S
+  blinkMorse(".-");    // A
 }
