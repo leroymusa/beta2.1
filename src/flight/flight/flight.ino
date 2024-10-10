@@ -32,14 +32,13 @@
   // Initialize Pins //
   //-----------------//
 
-const int ledblu = 7, ledgrn = 4, ledred = 0;
+const int ledblu = 7, ledgrn = 4, ledred = 0, teensyled = 13;
 ApogeeDetector detector;                     // Apogee detector object
 double altitude_backing_array[WINDOW_SIZE];  // Array to store altitude data for the rolling window
 RocketState currentState = PRE_LAUNCH;
 unsigned long stateEntryTime = 0;
 bool apogeeReached, mainChuteDeployed, isLowPowerModeEntered = false;
 EKF ekf;  // Kalman filter object
-#define LED_PIN 13
 bool LORA = false;
 
 // SD CARD(S) CS
@@ -77,7 +76,7 @@ const char* stateNames[] = {
 void setup() {
   Serial.begin(9600);
   Wire.begin();
-  
+  blinkMorseName();
   /*
   Serial1.begin(115200); Serial2.begin(115200); Serial3.begin(115200);
   */
@@ -85,7 +84,7 @@ void setup() {
   pinMode(ledblu, OUTPUT);
   pinMode(ledgrn, OUTPUT);
   pinMode(ledred, OUTPUT);
-  pinMode(LED_PIN, OUTPUT);
+  pinMode(teensyled, OUTPUT);
   pinMode(pyrS1droguechute, OUTPUT);
   pinMode(pyrS1mainchute, OUTPUT);
   pinMode(pyrS12sep, OUTPUT);
@@ -148,7 +147,6 @@ void setup() {
   // Initialize LoRa Radio
   if (rf95.init()) {
     Serial.println("LoRa radio initialized!");
-    blinkMorseName();
     rf95.setFrequency(RF95_FREQ);
     rf95.setTxPower(23, false);
     rf95.setSpreadingFactor(10);
@@ -343,19 +341,19 @@ void changeState(RocketState newState) {
   Serial.println(stateNames[newState]);
 }
 
-void blinkMorse(char *morse) {
+void blinkMorse(const char *morse) {
   for (int i = 0; morse[i] != '\0'; i++) {
     if (morse[i] == '.') {
-      digitalWrite(LED_PIN, HIGH);
-      delay(250);  // Dot duration
+      digitalWrite(teensyled, HIGH);
+      delay(250);
     } else if (morse[i] == '-') {
-      digitalWrite(LED_PIN, HIGH);
-      delay(750);  // Dash duration
+      digitalWrite(teensyled, HIGH);
+      delay(750);
     }
-    digitalWrite(LED_PIN, LOW);
-    delay(250);  // Pause between parts of the letter
+    digitalWrite(teensyled, LOW);
+    delay(250);
   }
-  delay(1000);  // Pause between letters
+  delay(1000);
 }
 
 void blinkMorseName() {
@@ -364,7 +362,9 @@ void blinkMorseName() {
   blinkMorse(".-.");   // R
   blinkMorse("---");   // O
   blinkMorse("-.--");  // Y
+
   delay(2000);
+
   blinkMorse("--");    // M
   blinkMorse("..-");   // U
   blinkMorse("...");   // S
