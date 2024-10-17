@@ -40,6 +40,7 @@ unsigned long stateEntryTime = 0;
 bool apogeeReached, mainChuteDeployed, isLowPowerModeEntered = false;
 EKF ekf;  // Kalman filter object
 bool LORA = false;
+double initial_pressure;
 
 // SD CARD(S) CS
 const int chipSelect = BUILTIN_SDCARD;
@@ -128,6 +129,8 @@ void setup() {
                   Adafruit_BMP280::FILTER_X16,      /* Filtering. */
                   Adafruit_BMP280::STANDBY_MS_125); /* Standby time. */
 
+  initial_pressure = bmp.readPressure() / 100.0;
+
   // Initialize BNO055 Orientation Sensor
   if (!bno.begin()) {
     Serial.println("No BNO055 detected, check wiring!");
@@ -174,7 +177,7 @@ void loop() {
   accel = bno.getVector(Adafruit_BNO055::VECTOR_ACCELEROMETER);
 
   // for ekf updates!
-  double current_altitude = bmp.readAltitude(1013.25);
+  double currentAltitude = bmp.readAltitude(initial_pressure);
   double current_accelY = accel.y();
   ekf.update(current_altitude, current_accelY);
 
