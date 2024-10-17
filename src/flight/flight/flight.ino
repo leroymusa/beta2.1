@@ -177,7 +177,7 @@ void loop() {
   accel = bno.getVector(Adafruit_BNO055::VECTOR_ACCELEROMETER);
 
   // for ekf updates!
-  double currentAltitude = bmp.readAltitude(initial_pressure);
+  double current_altitude = bmp.readAltitude(initial_pressure);
   double current_accelY = accel.y();
   ekf.update(current_altitude, current_accelY);
 
